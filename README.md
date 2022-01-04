@@ -1,2 +1,2 @@
 # Courses
-Repositório com fontes de cursos realizados
+Repository with sources of courses taken
