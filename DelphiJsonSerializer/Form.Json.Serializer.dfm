@@ -34,7 +34,7 @@ object Form1: TForm1
     Align = alTop
     Caption = 'People'
     TabOrder = 1
-    object edtName: TLabeledEdit
+    object edName: TLabeledEdit
       Left = 16
       Top = 28
       Width = 225

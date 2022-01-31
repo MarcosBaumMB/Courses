@@ -12,7 +12,7 @@ type
   TForm1 = class(TForm)
     mmoJson: TMemo;
     gbPeople: TGroupBox;
-    edtName: TLabeledEdit;
+    edName: TLabeledEdit;
     edAge: TLabeledEdit;
     gpAddress: TGroupBox;
     edStreet: TLabeledEdit;
@@ -76,7 +76,7 @@ end;
 
 procedure TForm1.ClearInputs();
 begin
-  edtName.Clear;
+  edName.Clear;
   edAge.Clear;
   edStreet.Clear;
   edNumber.Clear;
@@ -84,6 +84,7 @@ end;
 
 procedure TForm1.FormShow(Sender: TObject);
 begin
+  edName.SetFocus;
   ClearMemo;
 end;
 
@@ -92,32 +93,55 @@ var
   LServiceRestJson: TServiceRestJson;
   LPeople: TPeople;
 begin
-  LServiceRestJson := TServiceRestJson.Create(EmptyStr, 0, EmptyStr, EmptyStr);
+  LPeople := TPeople.Create(Self);
   try
+    try
+      LServiceRestJson := TServiceRestJson.Create(LPeople);
+    finally
+      LPeople.Free;
+    end;
+
     LPeople := LServiceRestJson.GetPeople(mmoJson.Text);
     if not Assigned(LPeople) then
     begin
       MessageDlg('Wrong Json: ' + mmoJson.Text, mtError, [mbok], 0);
       Exit;
     end;
-
-    edtName.Text := LPeople.Name;
-    edAge.Text   := LPeople.AgeStr();
-    edStreet.Text := LPeople.Address.Street;
-    edNumber.Text := LPeople.Address.Number;
-
-    LPeople.Free;
+    try
+      edName.Text := LPeople.Name;
+      edAge.Text   := LPeople.AgeStr();
+      edStreet.Text := LPeople.Address.Street;
+      edNumber.Text := LPeople.Address.Number;
+    finally
+      LPeople.Free;
+    end;
   finally
-    LServiceRestJson.Free;
+    if Assigned(LServiceRestJson) then
+      LServiceRestJson.Free;
   end;
 end;
 
 procedure TForm1.SerializeJson();
 var
   LServiceRestJson: TServiceRestJson;
+  LPeople: TPeople;
 begin
-  LServiceRestJson := TServiceRestJson.Create(edtName.Text, StrToInt(edAge.Text), edStreet.Text, edNumber.Text);
-  mmoJson.Lines.Text := LServiceRestJson.GetJson();
+  LPeople := TPeople.Create(Self);
+  try
+    LPeople.Age := StrToInt(edAge.Text);
+    LPeople.Name := edName.Text;
+    LPeople.Address.Street := edStreet.Text;
+    LPeople.Address.Number := edNumber.Text;
+
+    LServiceRestJson := TServiceRestJson.Create(LPeople);
+    try
+      mmoJson.Lines.Text := LServiceRestJson.GetJson();
+    finally
+      LServiceRestJson.Free;
+    end;
+  finally
+    LPeople.Free;
+  end;
 end;
 
 function TForm1.ValidateInputs(): Boolean;
@@ -128,7 +152,7 @@ begin
 
   LStringBuilderErrors := TStringBuilder.Create;
   try
-    if Trim(edtName.Text).IsEmpty then
+    if Trim(edName.Text).IsEmpty then
       LStringBuilderErrors.AppendLine('Name is required.');
 
     if StrToIntDef(Trim(edAge.Text), 0) = 0 then
@@ -148,7 +172,6 @@ begin
   finally
     LStringBuilderErrors.Free;
   end;
-
 end;
 
 end.

@@ -11,7 +11,8 @@ type
     FPeople: TPeople;
   private
   public
-    constructor Create(const aName: string; const aAge: Integer; const aStreet, aNumber: string);
+    constructor Create(aPeople :TPeople);
+    destructor Destroy; override;
     function GetJson: string;
     function GetPeople(const aJson: string): TPeople;
   end;
@@ -20,13 +21,20 @@ implementation
 
 { TServiceRestJson }
 
-constructor TServiceRestJson.Create(const aName: string; const aAge: Integer; const aStreet, aNumber: string);
+constructor TServiceRestJson.Create(aPeople: TPeople);
 begin
   FPeople := TPeople.Create(nil);
-  FPeople.Name := aName;
-  FPeople.Age := aAge;
-  FPeople.Address.Street := aStreet;
-  FPeople.Address.Number := aNumber;
+  FPeople.Name := aPeople.Name;
+  FPeople.Age := aPeople.Age;
+  FPeople.Address.Street := aPeople.Address.Street;
+  FPeople.Address.Number := aPeople.Address.Number;
+end;
+
+destructor TServiceRestJson.Destroy;
+begin
+  if Assigned(FPeople) then
+    FPeople.Free;
+  inherited;
 end;
 
 function TServiceRestJson.GetJson(): string;
@@ -36,8 +44,8 @@ end;
 
 function TServiceRestJson.GetPeople(const aJson: string): TPeople;
 begin
-  FPeople := TJson.JsonToObject<TPeople>(aJson);
-  Result := FPeople;
+  Result := TJson.JsonToObject<TPeople>(aJson);
+  FPeople.Assign(Result);
 end;
 
 end.

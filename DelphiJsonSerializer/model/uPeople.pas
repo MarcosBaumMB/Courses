@@ -7,16 +7,16 @@ uses
   uAddress;
 
 type
-  TPeople = class(TObject)
-
+  TPeople = class(TPersistent)
   private
     FName: string;
     FAge: Integer;
     FAddress: TAddress;
   public
     constructor Create(AOwner: TComponent);
-    destructor Destroy;
+    destructor Destroy; override;
     function AgeStr: string;
+    procedure Assign(const aSource: TPeople); overload;
   published
     property Name: string read FName write FName;
     property Age: Integer read FAge write FAge;
@@ -27,17 +27,28 @@ implementation
 
 { TPeople }
 
+procedure TPeople.Assign(const aSource: TPeople);
+begin
+  if not Assigned(aSource) then
+    inherited Assign(aSource);
+
+  FName := aSource.Name;
+  FAge  := aSource.Age;
+  FAddress.Assign(aSource.Address)
+end;
+
 constructor TPeople.Create(AOwner: TComponent);
 begin
   inherited Create;
   FAddress := TAddress.Create(aowner);
 end;
 
-
 destructor TPeople.Destroy;
 begin
   if Assigned(FAddress) then
     FAddress.Free;
+
+  inherited;
 end;
 
 function TPeople.AgeStr(): string;
