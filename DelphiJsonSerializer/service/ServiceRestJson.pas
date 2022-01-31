@@ -8,8 +8,8 @@ uses
 
 type
   TServiceRestJson = class
-    FPeople: TPeople;
   private
+      FPeople: TPeople;
   public
     constructor Create(aPeople :TPeople);
     destructor Destroy; override;
@@ -24,10 +24,10 @@ implementation
 constructor TServiceRestJson.Create(aPeople: TPeople);
 begin
   FPeople := TPeople.Create(nil);
-  FPeople.Name := aPeople.Name;
-  FPeople.Age := aPeople.Age;
-  FPeople.Address.Street := aPeople.Address.Street;
-  FPeople.Address.Number := aPeople.Address.Number;
+  if not Assigned(aPeople) then
+    Exit;
+
+  FPeople.Assign(aPeople);
 end;
 
 destructor TServiceRestJson.Destroy;

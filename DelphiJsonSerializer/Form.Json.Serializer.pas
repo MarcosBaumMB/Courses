@@ -93,14 +93,8 @@ var
   LServiceRestJson: TServiceRestJson;
   LPeople: TPeople;
 begin
-  LPeople := TPeople.Create(Self);
+  LServiceRestJson := TServiceRestJson.Create(nil);
   try
-    try
-      LServiceRestJson := TServiceRestJson.Create(LPeople);
-    finally
-      LPeople.Free;
-    end;
-
     LPeople := LServiceRestJson.GetPeople(mmoJson.Text);
     if not Assigned(LPeople) then
     begin
